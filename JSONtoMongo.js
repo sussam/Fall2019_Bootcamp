@@ -12,7 +12,8 @@ var fs = require('fs'),
 /* Connect to your database using mongoose - remember to keep your key secret*/
 //see https://mongoosejs.com/docs/connections.html
 //See https://docs.atlas.mongodb.com/driver-connection/
-mongoose.connect(config.db.uri);
+
+mongoose.connect(config.db.uri, { useNewUrlParser: true });
 
 /* 
   Instantiate a mongoose model for each listing object in the JSON file, 
@@ -23,7 +24,10 @@ mongoose.connect(config.db.uri);
  */
 
 fs.readFile('listings.json', 'utf8', function(err, data){
-  var listings = JSON.parse(data);
+  if(err) {
+    throw err;
+  }
+  /*var listings = JSON.parse(data);
     listings.entries.forEach(function(listing) {
       var listingModel = new Listing(listing);
       listingModel.save(function(err) {
@@ -31,11 +35,10 @@ fs.readFile('listings.json', 'utf8', function(err, data){
           throw err;
         }
       });
+    });*/
+    JSON.parse(data).entries.forEach(function(element) {
+      Listing.create(element);
     });
-
-    if(err) {
-      throw err;
-    }
 });
 
 process.exit();
